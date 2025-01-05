@@ -18,22 +18,21 @@ const crawled_content = sequelize.define(
         },
 
         paragraphs: {
-            type: DataTypes.TEXT("long"),
+            type:  DataTypes.JSON,
             allowNull: false
         },
         lists: {
-            type: DataTypes.TEXT("long"),
+            type:  DataTypes.JSON,
         },
         tableData: {
-            type: DataTypes.TEXT("long"),
+            type:  DataTypes.JSON,
         },
         articles: {
-            type: DataTypes.TEXT("long"),
+            type:  DataTypes.JSON,
         },
         mainContents: {
-            type: DataTypes.TEXT("long"),
+            type:  DataTypes.JSON,
         },
-
         title : {
             type : DataTypes.STRING,
 

@@ -27,13 +27,14 @@ const limitConcurrency = pLimit(10);
 const stemmer = natural.PorterStemmer();
 
 const preProcessText = (textArray) => {
-    textArray.map((text) => 
+   const res = textArray.map((text) => 
         text
             .toLowerCase() 
             .split(/\s+/) 
             .map(word => stemmer.stem(word)) 
             .join(" ") 
     )
+    return res;
 }
 
 async function crawl(url, depth){
