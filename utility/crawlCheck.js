@@ -5,7 +5,7 @@ const axios = require("axios");
 async function canCrawl(url){
     try{
         const domain = new URL(url).origin;
-        const res = await axios.get(`${domain}/robots.txt`, {timeout : 1000})
+        const res = await axios.get(`${domain}/robots.txt`)
         const robots = robotsParser(`${domain}/robots.txt`, res.data)
         const isCrawlable = robots.isAllowed(url, '*')
         return isCrawlable;
@@ -15,4 +15,4 @@ async function canCrawl(url){
     
 }
 
-module.exports = canCrawl
+module.exports =  canCrawl 
