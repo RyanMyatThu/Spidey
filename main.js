@@ -24,14 +24,14 @@ const visited = new Set();
 const queue = [];
 const maxDepth = 3; 
 const limitConcurrency = pLimit(10);
-const stemmer = natural.PorterStemmer();
+
 
 const preProcessText = (textArray) => {
    const res = textArray.map((text) => 
         text
             .toLowerCase() 
             .split(/\s+/) 
-            .map(word => stemmer.stem(word)) 
+            .map(word => natural.PorterStemmer.stem(word)) 
             .join(" ") 
     )
     return res;
@@ -71,7 +71,7 @@ async function crawl(url, depth){
             if (absLink.includes("#")) {
                 return;
             }
-            if (absLink.includes("Wikipedia:") || absLink.includes("community") || absLink.includes("user") || absLink.includes("post") || absLink.includes("users") || absLink.includes("Help:") || absLink.includes("Template:") || absLink.includes("User_Talk:") || absLink.includes("oldid=") || absLink.includes("/wiki/Talk:") || absLink.includes("/wiki/User:") || absLink.includes("/wiki/File:")) {
+            if (absLink.includes("www.geeksforgeeks.org/quizzes") || absLink.includes("www.geeksforgeeks.org/puzzles") || absLink.includes("Wikipedia:") || absLink.includes("community") || absLink.includes("user") || absLink.includes("post") || absLink.includes("users") || absLink.includes("Help:") || absLink.includes("Template:") || absLink.includes("User_Talk:") || absLink.includes("oldid=") || absLink.includes("/wiki/Talk:") || absLink.includes("/wiki/User:") || absLink.includes("/wiki/File:")) {
                 return;
             }
             const matchedPortion = absLink.match(/\/([a-z]{2,})\./);
@@ -99,7 +99,7 @@ async function main(){
     while(queue.length  > 0 && visited.size < limit){      
         let currentBatch = queue.splice(0, 10);      
         const crawlPromises = currentBatch.map(( {url, depth} ) => limitConcurrency(() => crawl(url, depth)))
-        await Promise.all(crawlPromises);
+        await Promise.allSettled(crawlPromises);
     }
 }
 
