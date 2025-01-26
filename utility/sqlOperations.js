@@ -1,11 +1,13 @@
 const Sequelize = require("sequelize");
 const DataTypes = require("sequelize");
+const { FORCE } = require("sequelize/lib/index-hints");
 require('dotenv').config()
 
 
 const sequelize = new Sequelize('mydb', 'root', process.env.WORD, {
     host: 'localhost',
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: console.log
   });
 
 const crawled_content = sequelize.define(
@@ -48,6 +50,69 @@ const crawled_content = sequelize.define(
 
 )
 
+
+const document_table = sequelize.define(
+    'document_table',
+    {
+        term: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            
+        },
+        documentId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+    },
+    {
+        timestamps: false,
+        primaryKey : false,
+        tableName: 'document_table',
+        indexes: [
+            {
+                unique: true,
+                fields: ['term' ,'documentId'], 
+            },
+        ],
+    }
+);
+
+
+
+async function insertDfData(term, documentID) {
+    try {
+        await document_table.create({
+            term: term,
+            documentId: documentID,
+        });
+      
+        console.log(`Inserted successfully: ${term}, DocID: ${documentID}`);
+        return true;
+    } catch (error) {
+        console.error(`Error inserting DF data for ${term}:`, error);
+    }
+}
+
+async function startConnectionDF(){
+    try{
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+        return syncDocumentTable();
+    }catch(error){
+        console.log(error)
+    }
+}
+
+async function syncDocumentTable(){
+    try{
+    await document_table.sync();
+    console.log('document_table has been synced successfully.');
+    return true;
+    } catch(error){
+        console.error('Error syncing database:' + error);
+    }
+}
+
 async function startConnection(){
     try{
         await sequelize.authenticate();
@@ -61,11 +126,36 @@ async function startConnection(){
 async function syncDatabase(){
     try{
     await crawled_content.sync();
-    console.log('CrawledContent table has been synced successfully.');
+    console.log('crawled_content has been synced successfully.');
     } catch(error){
         console.error('Error syncing database:' + error);
     }
 }
+async function getBatch(){
+    //const batchSize = 10;
+   // const offset = batchIndex * batchSize;
+    try { 
+    const currentBatch = await crawled_content.findAll({
+        attributes : [
+            'id',
+            'paragraphs',
+        ],
+       // limit : 2,
+      //  offset : 0,
+        order : [['id', "ASC"]]
+    })
+   /* if (currentBatch.length === 0) {
+        console.log(`Batch ${batchIndex} is empty.`);
+    } */
+ 
+    return currentBatch;
+} catch(error) {
+    console.log(error)
+
+
+}
+}
+
 
 async function insertCrawledData(url, paragraphs, lists, tableData, articles, mainContents, title, metadata) {
     try {
@@ -87,5 +177,9 @@ async function insertCrawledData(url, paragraphs, lists, tableData, articles, ma
 
 module.exports = {
     startConnection,
-    insertCrawledData
+    insertCrawledData,
+    getBatch,
+    insertDfData,
+    startConnectionDF,
+    
 };
