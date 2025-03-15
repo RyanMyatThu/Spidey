@@ -3,6 +3,7 @@ const axios = require("axios");
 
 
 async function canCrawl(url){
+
     try{
         const domain = new URL(url).origin;
         const res = await axios.get(`${domain}/robots.txt`)
@@ -10,9 +11,8 @@ async function canCrawl(url){
         const isCrawlable = robots.isAllowed(url, '*')
         return isCrawlable;
     } catch (error){
-        console.log("Error fetching or parsing robots.txt : " + url)
+        console.log("Error fetching or parsing robots.txt : " + error)
     }
     
 }
-
-module.exports =  canCrawl 
+module.exports = canCrawl 
